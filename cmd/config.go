@@ -2,13 +2,15 @@ package cmd
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
+	"net"
+	"net/http"
 	"net/url"
 	"strconv"
 	"time"
 
-	"github.com/AlessandroSechi/zammad-go"
-	"github.com/NETWAYS/go-check"
+	"github.com/NETWAYS/notify_zammad/api"
 	"github.com/spf13/cobra"
 )
 
@@ -86,7 +88,7 @@ func (c *Config) ConfigSanityCheck(cmd *cobra.Command) error {
 	return nil
 }
 
-func (c *Config) NewClient() *zammad.Client {
+func (c *Config) NewClient() (*api.ZammadApiClient, error) {
 	u := url.URL{
 		Scheme: "https",
 		Host:   c.zammadAddress + ":" + strconv.FormatUint(uint64(c.port), 10),
@@ -96,19 +98,34 @@ func (c *Config) NewClient() *zammad.Client {
 		u.Scheme = "http"
 	}
 
-	client, err := zammad.NewClient(&zammad.Client{
-		Username: c.basicAuthCredentials.username,
-		Password: c.basicAuthCredentials.password,
-		Token:    c.token,
-		OAuth:    c.bearerToken,
-		Url:      u.String(),
-	})
-
-	if err != nil {
-		check.ExitError(err)
+	var rt http.RoundTripper = &http.Transport{
+		Proxy: http.ProxyFromEnvironment,
+		DialContext: (&net.Dialer{
+			Timeout:   30 * time.Second,
+			KeepAlive: 30 * time.Second,
+		}).DialContext,
+		TLSHandshakeTimeout: 10 * time.Second,
 	}
 
-	return client
+	client := api.NewClient(u, rt)
+
+	if c.bearerToken != "" {
+		client.Headers.Add("Authorization", "Bearer "+c.bearerToken)
+	} else if c.token != "" {
+		client.Headers.Add("Authorization", "Token token="+c.token)
+	} else {
+		data := []byte(c.basicAuthCredentials.username + ":" + c.basicAuthCredentials.password)
+		str := base64.StdEncoding.EncodeToString(data)
+		client.Headers.Add("Authorization", "Basic "+str)
+	}
+
+	client.Headers.Add("Content-Type", "application/json")
+
+	ctx, _ := c.timeoutContext()
+
+	client.Ctx = ctx
+
+	return client, nil
 }
 
 func (c *Config) timeoutContext() (context.Context, func()) {

@@ -4,7 +4,9 @@ import (
 	"errors"
 
 	"github.com/NETWAYS/go-check"
-	"github.com/NETWAYS/icingadsl"
+	icingadsl "github.com/NETWAYS/go-icingadsl/types"
+	icingadslTypes "github.com/NETWAYS/go-icingadsl/types"
+	"github.com/NETWAYS/notify_zammad/api"
 	"github.com/spf13/cobra"
 )
 
@@ -18,71 +20,173 @@ var notifyCmd = &cobra.Command{
 
 func sendNotification(cmd *cobra.Command, args []string) {
 
-	client := config.NewClient()
+	notificationType, err := icingadslTypes.ParseNotificationType(config.notificationType)
+	if err != nil {
+		check.ExitError(err)
 
-	notificationType, err := icingadsl.ParseNotificationType(config.notificationType)
+	}
+
+	client, err := config.NewClient()
 	if err != nil {
 		check.ExitError(err)
 	}
 
+	var tickets map[api.ZammadTicketId]api.ZammadTicket
+
+	if config.serviceName == "" {
+		// Searching for a host ticket
+		tickets, err = client.SearchTicketForHost(config.hostName)
+		if err != nil {
+			check.ExitError(err)
+		}
+	} else {
+		// Searching for a service ticket
+		tickets, err = client.SearchTicketForService(config.hostName, config.serviceName)
+		if err != nil {
+			check.ExitError(err)
+		}
+	}
+
+	var ticketExists bool
+	var ticketId api.ZammadTicketId
+
+	if len(tickets) == 0 {
+		// No ticket yet
+		ticketExists = false
+	} else {
+		// got a ticket
+		ticketExists = true
+
+		// just pick the first element
+		for k := range tickets {
+			ticketId = k
+			break
+		}
+	}
+
 	switch notificationType {
-	case icingadsl.Custom:
-	case icingadsl.Acknowledgment:
-	case icingadsl.Problem:
-	case icingadsl.Recovery:
+	case icingadslTypes.Custom:
+		// Custom notification, add article to existing ticket
+		if ticketExists {
+			newArticle := api.ZammadArticle{
+				TicketId:    ticketId,
+				Subject:     "Custom notification",
+				Body:        "Custom notification was triggered",
+				ContentType: "text/html",
+				Type:        "web",
+				Internal:    true,
+				Sender:      "Agent",
+				TimeUnit:    "0",
+			}
+
+			client.AddArticleToTicket(newArticle)
+		} else {
+			check.ExitRaw(check.OK, "Got a custom notification, but no ticket. Not sending anything, exiting silently")
+		}
+	case icingadslTypes.Acknowledgement:
+		// Acknowledgement for a problem, so search problem ticket and add an article
+		// Possibly set the ticket to handled or something
+		if !ticketExists {
+			check.ExitRaw(check.Warning, "Should send an Acknowledgement, but didn't find the problem")
+		}
+		newArticle := api.ZammadArticle{
+			TicketId:    ticketId,
+			Subject:     "Acknowledgement",
+			Body:        "Problem was acknowledged",
+			ContentType: "text/html",
+			Type:        "web",
+			Internal:    true,
+			Sender:      "Agent",
+			TimeUnit:    "0",
+		}
+
+		client.AddArticleToTicket(newArticle)
+		client.ChangeTicketState(ticketId, 3)
+
+	case icingadslTypes.Problem:
+		/*
+		 * Problem occured, search for existing ticket
+		 * if yes -> add an article and change the ticket title according to new state
+		 * if no -> create a new ticket
+		 */
+
+		if ticketExists {
+			newArticle := api.ZammadArticle{
+				TicketId:    ticketId,
+				Subject:     "Problem",
+				Body:        config.checkState + " " + config.checkOutput,
+				ContentType: "text/html",
+				Type:        "web",
+				Internal:    true,
+				Sender:      "Agent",
+				TimeUnit:    "0",
+			}
+			client.AddArticleToTicket(newArticle)
+		} else {
+			newArticle := api.ZammadArticle{
+				TicketId:    ticketId,
+				Subject:     "Problem",
+				Body:        config.checkState + " " + config.checkOutput,
+				ContentType: "text/html",
+				Type:        "web",
+				Internal:    true,
+				Sender:      "Agent",
+				TimeUnit:    "0",
+			}
+
+			titleText, err := icingadsl.FormatNotificationType(notificationType)
+			if err != nil {
+				check.ExitError(err)
+			}
+
+			titleText += ": "
+
+			if config.serviceName != "" {
+				// service problem
+				titleText += "Service " + config.serviceName + " on " + config.hostName + " is " + config.checkState
+			} else {
+				titleText += "Host " + config.hostName + " is " + config.checkState
+			}
+
+			newTicket := api.ZammadNewTicket{
+				Title:         config.checkState,
+				Group:         config.zammadGroup,
+				Customer:      config.zammadCustomer,
+				Article:       newArticle,
+				IcingaHost:    config.hostName,
+				IcingaService: config.serviceName,
+			}
+
+			client.CreateTicket(newTicket)
+		}
+	case icingadslTypes.Recovery:
+		/*
+		 * Recovery, search for existing ticket and resolve (close) it. If none exits, do nothing
+		 */
+
+		if !ticketExists {
+			// No ticket for that, do nothing
+		} else {
+			// Post new article and the close ticket
+			newArticle := api.ZammadArticle{
+				TicketId:    ticketId,
+				Subject:     "Recovery",
+				Body:        config.checkState + " " + config.checkOutput,
+				ContentType: "text/html",
+				Type:        "web",
+				Internal:    true,
+				Sender:      "Agent",
+				TimeUnit:    "0",
+			}
+
+			client.AddArticleToTicket(newArticle)
+			client.ChangeTicketState(ticketId, api.Closed)
+		}
 	default:
 		check.ExitError(errors.New("Unsupported notification type"))
 	}
 
-	/*
-		tickets, err := client.TicketList() //Get Users
-
-		if err != nil {
-			check.ExitError(err)
-		}
-
-		for idx, ticket := range *tickets {
-			fmt.Printf("%v\n", idx)
-			b, err := json.MarshalIndent(ticket, "", "  ")
-			if err != nil {
-				fmt.Println("error:", err)
-			}
-			fmt.Print(string(b))
-		}
-	*/
-
-	tmpMap := make(map[string]interface{})
-	tmpMap["icinga_host"] = config.hostName
-	tmpMap["group"] = config.zammadGroup
-	tmpMap["customer"] = config.zammadCustomer
-
-	// Determine notification type
-	if config.serviceName != "" {
-		// got a service name, so this is related to a service
-		tmpMap["title"] = "Service: " + config.serviceName + " on " + config.hostName
-		tmpMap["icinga_service"] = config.serviceName
-	} else {
-		// got no service name, so this is related to a host
-		tmpMap["title"] = "Host: " + config.hostName
-	}
-
-	/*
-			article := `   "article": {
-		      "subject": "My subject",
-		      "body": "I am a message!",
-		      "type": "note",
-		      "internal": false
-		   }`
-
-			tmpMap["article"] = article
-	*/
-
-	// ticket "open"
-
-	_, err := client.TicketCreate(&tmpMap)
-	if err != nil {
-		check.ExitError(err)
-	}
+	check.ExitRaw(check.OK, "")
 }
 
 func init() {
