@@ -1,0 +1,34 @@
+run:
+  timeout: 5m
+  tests: false
+linters:
+   enable-all: true
+   disable:
+     - cyclop
+     - depguard
+     - exhaustivestruct
+     - exhaustruct
+     - forbidigo
+     - forcetypeassert
+     - gci
+     - gochecknoglobals
+     - gochecknoinits
+     - godox
+     - godot
+     - goerr113
+     - gofumpt
+     - gomnd
+     - lll
+     - musttag
+     - nakedret
+     - nlreturn
+     - nolintlint
+     - nonamedreturns
+     - tagliatelle
+     - varnamelen
+     - wrapcheck
+linters-settings:
+   estif:
+     min-complexity: 4
+   maligned:
+     suggest-new: true
