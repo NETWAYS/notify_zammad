@@ -54,6 +54,8 @@ func init() {
 		"Token string for HTTP Token Authentication")
 	pfs.StringVar(&config.bearerToken, "oauth2-token", "",
 		"Token string for OAuth2 authentication")
+	pfs.CountVarP(&config.debuglevel, "debug", "d",
+		"Increase debug output level")
 	//pfs.BoolVar(&config.doNotUseTLS, "no-tls", false,
 	//	"Use plain HTTP to connect instead of HTTPS")
 	//pfs.BoolVar(&config.doNotVerifyTlsCertificate, "no-certificate-verification", false,

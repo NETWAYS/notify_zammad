@@ -141,7 +141,7 @@ func (client *ZammadApiClient) SearchTicketForService(icingaHost string, icingaS
 }
 
 type ZammadArticle struct {
-	TicketId    ZammadTicketId `json:"ticket_id"`
+	TicketId    ZammadTicketId `json:"ticket_id,omitempty"`
 	Subject     string         `json:"subject"`
 	Body        string         `json:"body"`
 	ContentType string         `json:"content_type"` // "text/html"
@@ -162,7 +162,10 @@ func (client *ZammadApiClient) AddArticleToTicket(article ZammadArticle) error {
 
 	data := b.Bytes()
 
-	_, err = client.Post(*queryUrl, &data)
+	resp, err := client.Post(*queryUrl, &data)
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("could not get %s - Error: %d", queryUrl, resp.StatusCode)
+	}
 
 	return err
 }
@@ -180,9 +183,16 @@ func (client *ZammadApiClient) ChangeTicketState(ticketId ZammadTicketId, newSta
 	request.Body = readCloser
 	request.Header = client.Headers
 
-	_, err = client.Client.Do(request)
+	resp, err := client.Client.Do(request)
+	if err != nil {
+		return err
+	}
 
-	return err
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("could not get %s - Error: %d", queryUrl, resp.StatusCode)
+	}
+
+	return nil
 }
 
 type ZammadNewTicket struct {
@@ -195,7 +205,7 @@ type ZammadNewTicket struct {
 }
 
 func (client *ZammadApiClient) CreateTicket(newTicket ZammadNewTicket) error {
-	queryUrl := client.URL.JoinPath("/api/v1/tickets/create")
+	queryUrl := client.URL.JoinPath("/api/v1/tickets")
 
 	b := new(bytes.Buffer)
 	err := json.NewEncoder(b).Encode(newTicket)
@@ -205,10 +215,16 @@ func (client *ZammadApiClient) CreateTicket(newTicket ZammadNewTicket) error {
 
 	data := b.Bytes()
 
-	_, err = client.Post(*queryUrl, &data)
+	resp, err := client.Post(*queryUrl, &data)
 	if err != nil {
 		return err
 	}
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("could not get %s - Error: %d", queryUrl, resp.StatusCode)
+	}
+
+	defer resp.Body.Close()
 
 	return nil
 }

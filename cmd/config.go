@@ -42,6 +42,8 @@ type Config struct {
 	author  string
 	comment string
 	date    string
+
+	debuglevel int
 }
 
 const Copyright = `

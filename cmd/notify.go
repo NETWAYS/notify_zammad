@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/NETWAYS/go-check"
 	icingadsl "github.com/NETWAYS/go-icingadsl/types"
@@ -24,6 +25,14 @@ func sendNotification(cmd *cobra.Command, args []string) {
 	if err != nil {
 		check.ExitError(err)
 
+	}
+
+	if config.debuglevel > 0 {
+		ntString, err := icingadsl.FormatNotificationType(notificationType)
+		if err != nil {
+			check.ExitError(err)
+		}
+		fmt.Printf("Got notification type: %s (%d)\n", ntString, notificationType)
 	}
 
 	client, err := config.NewClient()
@@ -61,6 +70,14 @@ func sendNotification(cmd *cobra.Command, args []string) {
 		for k := range tickets {
 			ticketId = k
 			break
+		}
+	}
+
+	if config.debuglevel > 0 {
+		if ticketExists {
+			fmt.Printf("Ticket already exists with ID: %d\n", ticketId)
+		} else {
+			fmt.Println("No existing ticket for this host/service combination found")
 		}
 	}
 
@@ -123,6 +140,10 @@ func sendNotification(cmd *cobra.Command, args []string) {
 			}
 			client.AddArticleToTicket(newArticle)
 		} else {
+			if config.debuglevel > 0 {
+				fmt.Println("Creating new problem ticket")
+			}
+
 			newArticle := api.ZammadArticle{
 				TicketId:    ticketId,
 				Subject:     "Problem",
@@ -157,7 +178,14 @@ func sendNotification(cmd *cobra.Command, args []string) {
 				IcingaService: config.serviceName,
 			}
 
-			client.CreateTicket(newTicket)
+			if config.debuglevel > 1 {
+				fmt.Printf("New problem ticket: %#v\n", newTicket)
+			}
+
+			err = client.CreateTicket(newTicket)
+			if err != nil {
+				check.ExitError(err)
+			}
 		}
 	case icingadslTypes.Recovery:
 		/*
@@ -203,8 +231,11 @@ func init() {
 
 	fs.StringVar(&config.checkState, "check-state", "",
 		"State of the Object (Up/Down for hosts, OK/Warning/Critical/Unknown for services)")
+	cobra.MarkFlagRequired(fs, "check-state")
+
 	fs.StringVar(&config.checkOutput, "check-output", "",
 		"Output of the last executed check")
+	cobra.MarkFlagRequired(fs, "check-output")
 
 	fs.StringVar(&config.notificationType, "notification-type", "",
 		"The type of the notication (Problem/Recover/Acknowledgement/...)")
