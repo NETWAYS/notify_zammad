@@ -43,7 +43,9 @@ func init() {
 	pfs := rootCmd.PersistentFlags()
 	pfs.StringVar(&config.zammadAddress, "address", "",
 		"Address of the Zammad instance to be used")
-	cobra.MarkFlagRequired(pfs, "address")
+
+	_ = cobra.MarkFlagRequired(pfs, "address")
+
 	pfs.Uint16Var(&config.port, "port", 443,
 		"Port of the Prometheus server")
 	pfs.StringVar(&config.basicAuthCredentials.username, "basic-auth-user", "",
@@ -56,9 +58,9 @@ func init() {
 		"Token string for OAuth2 authentication")
 	pfs.CountVarP(&config.debuglevel, "debug", "d",
 		"Increase debug output level")
-	//pfs.BoolVar(&config.doNotUseTLS, "no-tls", false,
+	// pfs.BoolVar(&config.doNotUseTLS, "no-tls", false,
 	//	"Use plain HTTP to connect instead of HTTPS")
-	//pfs.BoolVar(&config.doNotVerifyTlsCertificate, "no-certificate-verification", false,
+	// pfs.BoolVar(&config.doNotVerifyTlsCertificate, "no-certificate-verification", false,
 	//	"Token string for OAuth2 authentication")
 
 	rootCmd.Flags().SortFlags = false
