@@ -2,8 +2,6 @@ module github.com/NETWAYS/notify_zammad
 
 go 1.21
 
-toolchain go1.21.4
-
 require (
 	github.com/NETWAYS/go-check v0.6.1
 	github.com/NETWAYS/go-icingadsl v0.1.2-0.20231207095155-8cef36489688
