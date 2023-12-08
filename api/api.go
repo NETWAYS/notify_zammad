@@ -59,6 +59,7 @@ func NewClient(url url.URL, rt http.RoundTripper) *ZammadAPIClient {
 	}
 }
 
+// nolint:interfacer
 func (client *ZammadAPIClient) Get(url url.URL) (*http.Response, error) {
 	request, err := http.NewRequest(http.MethodGet, url.String(), nil)
 	if err != nil {
@@ -230,6 +231,7 @@ func (client *ZammadAPIClient) CreateTicket(newTicket ZammadNewTicket) error {
 	return nil
 }
 
+// nolint:interfacer
 func (client *ZammadAPIClient) Post(url url.URL, data *[]byte) (*http.Response, error) {
 	request, err := http.NewRequest(http.MethodPost, url.String(), nil)
 	if err != nil {

@@ -14,18 +14,6 @@ import (
 )
 
 type Config struct {
-	// Zammad  configuration
-	zammadAddress        string
-	port                 uint16
-	basicAuthCredentials struct {
-		username string
-		password string
-	}
-	token       string
-	bearerToken string
-	doNotUseTLS bool
-	// doNotVerifyTLSCertificate bool
-
 	zammadGroup    string
 	zammadCustomer string
 
@@ -43,6 +31,18 @@ type Config struct {
 	date    string
 
 	debuglevel int
+
+	// Zammad  configuration
+	zammadAddress        string
+	basicAuthCredentials struct {
+		username string
+		password string
+	}
+	token       string
+	bearerToken string
+	doNotUseTLS bool
+	// doNotVerifyTLSCertificate bool
+	port uint16
 }
 
 const Copyright = `
