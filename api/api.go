@@ -61,6 +61,7 @@ func NewClient(url url.URL, rt http.RoundTripper) *ZammadAPIClient {
 
 // nolint:interfacer
 func (client *ZammadAPIClient) Get(url url.URL) (*http.Response, error) {
+	// nolint:noctx
 	request, err := http.NewRequest(http.MethodGet, url.String(), nil)
 	if err != nil {
 		return nil, err
@@ -178,7 +179,7 @@ func (client *ZammadAPIClient) ChangeTicketState(ticketID ZammadTicketID, newSta
 		return err
 	}
 
-	readCloser := io.NopCloser(bytes.NewReader([]byte("{state: " + strconv.Itoa(int(Closed)) + "}")))
+	readCloser := io.NopCloser(bytes.NewReader([]byte("{state: " + strconv.Itoa(int(newState)) + "}")))
 
 	request.Body = readCloser
 	request.Header = client.Headers
@@ -234,8 +235,9 @@ func (client *ZammadAPIClient) CreateTicket(newTicket ZammadNewTicket) error {
 
 // nolint:interfacer
 func (client *ZammadAPIClient) Post(url url.URL, data *[]byte) (*http.Response, error) {
+	bodyReader := bytes.NewReader(*data)
 	// nolint:noctx
-	request, err := http.NewRequest(http.MethodPost, url.String(), nil)
+	request, err := http.NewRequest(http.MethodPost, url.String(), bodyReader)
 	if err != nil {
 		return nil, err
 	}

@@ -19,7 +19,7 @@ var notifyCmd = &cobra.Command{
 }
 
 // nolint:funlen
-func sendNotification(cmd *cobra.Command, args []string) {
+func sendNotification(_ *cobra.Command, _ []string) {
 	notificationType, err := icingadsl.ParseNotificationType(config.notificationType)
 	if err != nil {
 		check.ExitError(err)

@@ -66,7 +66,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see https://www.gnu.org/licenses/.
 `
 
-func (c *Config) ConfigSanityCheck(cmd *cobra.Command) error {
+func (c *Config) ConfigSanityCheck(_ *cobra.Command) error {
 	if c.bearerToken == "" && c.token == "" {
 		// using basic auth, so both fields must be set
 		if c.basicAuthCredentials.username == "" {
