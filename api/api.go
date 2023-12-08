@@ -172,6 +172,7 @@ func (client *ZammadAPIClient) AddArticleToTicket(article ZammadArticle) error {
 func (client *ZammadAPIClient) ChangeTicketState(ticketID ZammadTicketID, newState ZammadTicketState) error {
 	queryURL := client.URL.JoinPath("/api/v1/tickets/" + strconv.Itoa(int(ticketID)))
 
+	// nolint:noctx
 	request, err := http.NewRequest(http.MethodPut, queryURL.String(), nil)
 	if err != nil {
 		return err
@@ -233,6 +234,7 @@ func (client *ZammadAPIClient) CreateTicket(newTicket ZammadNewTicket) error {
 
 // nolint:interfacer
 func (client *ZammadAPIClient) Post(url url.URL, data *[]byte) (*http.Response, error) {
+	// nolint:noctx
 	request, err := http.NewRequest(http.MethodPost, url.String(), nil)
 	if err != nil {
 		return nil, err
