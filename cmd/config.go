@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"context"
 	"encoding/base64"
 	"fmt"
 	"net"
@@ -22,10 +21,10 @@ type Config struct {
 		username string
 		password string
 	}
-	token                     string
-	bearerToken               string
-	doNotUseTLS               bool
-	doNotVerifyTlsCertificate bool
+	token       string
+	bearerToken string
+	doNotUseTLS bool
+	// doNotVerifyTLSCertificate bool
 
 	zammadGroup    string
 	zammadCustomer string
@@ -68,29 +67,25 @@ along with this program. If not, see https://www.gnu.org/licenses/.
 `
 
 func (c *Config) ConfigSanityCheck(cmd *cobra.Command) error {
-
-	//fs := cmd.Flags()
-
 	if c.bearerToken == "" && c.token == "" {
 		// using basic auth, so both fields must be set
 		if c.basicAuthCredentials.username == "" {
 			if c.basicAuthCredentials.password == "" {
-				return fmt.Errorf("No authentication method provided")
+				return fmt.Errorf("no authentication method provided")
 			}
 
-			return fmt.Errorf("No basic authentication username provided")
+			return fmt.Errorf("no basic authentication username provided")
 		}
 
 		if c.basicAuthCredentials.password == "" {
-			return fmt.Errorf("No basic authentication password provided")
+			return fmt.Errorf("no basic authentication password provided")
 		}
-
 	}
 
 	return nil
 }
 
-func (c *Config) NewClient() (*api.ZammadApiClient, error) {
+func (c *Config) NewClient() (*api.ZammadAPIClient, error) {
 	u := url.URL{
 		Scheme: "https",
 		Host:   c.zammadAddress + ":" + strconv.FormatUint(uint64(c.port), 10),
@@ -111,6 +106,7 @@ func (c *Config) NewClient() (*api.ZammadApiClient, error) {
 
 	client := api.NewClient(u, rt)
 
+	// nolint:gocritic
 	if c.bearerToken != "" {
 		client.Headers.Add("Authorization", "Bearer "+c.bearerToken)
 	} else if c.token != "" {
@@ -123,13 +119,5 @@ func (c *Config) NewClient() (*api.ZammadApiClient, error) {
 
 	client.Headers.Add("Content-Type", "application/json")
 
-	ctx, _ := c.timeoutContext()
-
-	client.Ctx = ctx
-
 	return client, nil
-}
-
-func (c *Config) timeoutContext() (context.Context, func()) {
-	return context.WithTimeout(context.Background(), 10*time.Second)
 }
