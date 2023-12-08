@@ -4,20 +4,47 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 )
 
 type ZammadTicketState int
 
 const (
-	New    ZammadTicketState = 0
-	Open   ZammadTicketState = 1
+	New    ZammadTicketState = 1
+	Open   ZammadTicketState = 2
 	Closed ZammadTicketState = 4
 	// WaitingForClosing ZammadTicketState =
+	Undefined = 255
 )
+
+func FormatZammadTicketState(s ZammadTicketState) string {
+	switch s {
+	case New:
+		return "new"
+	case Open:
+		return "open"
+	case Closed:
+		return "closed"
+	default:
+		return ""
+	}
+}
+
+func ParseZammadTicketState(s string) ZammadTicketState {
+	switch strings.ToLower(s) {
+	case "new":
+		return New
+	case "open":
+		return Open
+	case "closed":
+		return Closed
+	default:
+		return Undefined
+	}
+}
 
 type ZammadTicket struct {
 	ID            int    `json:"id"`
@@ -161,7 +188,7 @@ func (client *ZammadAPIClient) AddArticleToTicket(article ZammadArticle) error {
 	data := b.Bytes()
 
 	resp, err := client.Post(*queryURL, &data)
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode != http.StatusCreated {
 		return fmt.Errorf("could not get %s - Error: %d", queryURL, resp.StatusCode)
 	}
 
@@ -173,15 +200,15 @@ func (client *ZammadAPIClient) AddArticleToTicket(article ZammadArticle) error {
 func (client *ZammadAPIClient) ChangeTicketState(ticketID ZammadTicketID, newState ZammadTicketState) error {
 	queryURL := client.URL.JoinPath("/api/v1/tickets/" + strconv.Itoa(int(ticketID)))
 
+	data := []byte("{\"state\": \"" + FormatZammadTicketState(newState) + "\"}")
+	bodyReader := bytes.NewReader(data)
+
 	// nolint:noctx
-	request, err := http.NewRequest(http.MethodPut, queryURL.String(), nil)
+	request, err := http.NewRequest(http.MethodPut, queryURL.String(), bodyReader)
 	if err != nil {
 		return err
 	}
 
-	readCloser := io.NopCloser(bytes.NewReader([]byte("{state: " + strconv.Itoa(int(newState)) + "}")))
-
-	request.Body = readCloser
 	request.Header = client.Headers
 
 	resp, err := client.Client.Do(request)
@@ -224,7 +251,7 @@ func (client *ZammadAPIClient) CreateTicket(newTicket ZammadNewTicket) error {
 		return err
 	}
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode != http.StatusCreated {
 		return fmt.Errorf("could not get %s - Error: %d", queryURL, resp.StatusCode)
 	}
 

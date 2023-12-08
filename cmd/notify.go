@@ -207,7 +207,7 @@ func acknowledgeNotificationHelper(client *api.ZammadAPIClient, ticketExists boo
 		return err
 	}
 
-	err = client.ChangeTicketState(ticketID, 3)
+	err = client.ChangeTicketState(ticketID, api.Open)
 
 	return err
 }
