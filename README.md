@@ -1,17 +1,16 @@
 # notify-zammad
 
-A notification plugin for (mostly) Icinga 2 which manages problems as tickets in a Zammad instance.
+A notification plugin for (mostly) Icinga which manages problems as Zammad tickets.
 
-This plugin opens/updates/closes Zammad Tickets via Zammad API.
+This plugin opens/updates/closes Zammad tickets via the Zammad API.
 
-Problem notications will open a new ticket if none exists. If a ticket exists it will add an article to the this ticket.
-The ticket will be in state `new`.
+Problem notifications will open a new ticket if none exists. The ticket will be in state `new`. If a ticket exists the plugin will add an article to the this ticket.
 
-Acknowledgement notications will add an article to an existing ticket.
+Acknowledgement notifications will add an article to an existing ticket.
 This will also set the ticket state to `open`.
 If no ticket exists nothing will happen.
 
-Recovery notications closes an existing ticket.
+Recovery notifications will close an existing ticket.
 This will set the ticket state to `closed`.
 If no ticket exists nothing will happen.
 
@@ -20,7 +19,9 @@ To track tickets the plugin uses two custom field attributes:
 - icinga_host
 - icinga_service
 
-The plugin is currenlty designed to update the last created ticket with matching icinga_host and icinga_service.
+The plugin is currently designed to update the last created ticket with matching icinga_host and icinga_service.
+
+**Why not use Zammad's built-in Icinga integration?** The built-in integration uses mails reveived by Zammad to open/close tickets. We had the requirement to solve the same feature without the use of mail.
 
 ## Usage
 
