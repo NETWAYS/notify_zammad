@@ -70,6 +70,8 @@ func init() {
 	pfs.IntVarP(&Timeout, "timeout", "t", Timeout,
 		"Timeout in seconds for the plugin")
 
+	rootCmd.MarkFlagsMutuallyExclusive("user", "token")
+
 	// Configuration for the notification
 	pfs.StringVar(&cliConfig.IcingaHostname, "host-name", "",
 		"Host name of the Icinga 2 Host object")
@@ -93,6 +95,11 @@ func init() {
 		"Custom Zammad Field for the customer")
 
 	_ = cobra.MarkFlagRequired(pfs, "notification-type")
+	_ = cobra.MarkFlagRequired(pfs, "host-name")
+	_ = cobra.MarkFlagRequired(pfs, "check-state")
+	_ = cobra.MarkFlagRequired(pfs, "check-output")
+	_ = cobra.MarkFlagRequired(pfs, "zammad-group")
+	_ = cobra.MarkFlagRequired(pfs, "zammad-customer")
 
 	rootCmd.Flags().SortFlags = false
 	pfs.SortFlags = false

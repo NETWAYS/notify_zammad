@@ -11,7 +11,7 @@ import (
 
 func TestNotify_ConnectionRefused(t *testing.T) {
 
-	cmd := exec.Command("go", "run", "../main.go", "--zammad-port", "9999", "--notification-type", "Problem")
+	cmd := exec.Command("go", "run", "../main.go", "--zammad-port", "9999", "--notification-type", "Problem", "--host-name", "foo", "--check-state", "foo", "--check-output", "foo", "--zammad-group", "foo", "--zammad-customer", "foo")
 	out, _ := cmd.CombinedOutput()
 
 	actual := string(out)
