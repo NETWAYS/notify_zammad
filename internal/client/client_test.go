@@ -199,3 +199,46 @@ func TestSearchTicketsWithService(t *testing.T) {
 		t.Errorf("Expected ticket to contain service got: %v", tickets[0])
 	}
 }
+
+func TestAddArticleToTicket(t *testing.T) {
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "POST" {
+			t.Errorf("Expected POST request, got %s", r.Method)
+		}
+		w.WriteHeader(http.StatusCreated)
+
+		b, _ := io.ReadAll(r.Body)
+		actual := string(b)
+
+		if !strings.Contains(actual, "1337") {
+			t.Errorf("Expected new ticket got: %s", string(b))
+		}
+
+		w.Write([]byte(`{}`))
+	}))
+
+	defer ts.Close()
+
+	rt := &http.Transport{
+		Proxy: http.ProxyFromEnvironment,
+	}
+
+	u, _ := url.Parse(ts.URL)
+
+	c := NewClient(*u, rt)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	a := zammad.Article{
+		TicketID: 1337,
+		Subject:  "Acknowledgement",
+	}
+
+	err := c.AddArticleToTicket(ctx, a)
+
+	if err != nil {
+		t.Errorf("Did not except error: %v", err)
+	}
+}
