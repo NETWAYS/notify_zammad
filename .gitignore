@@ -1,0 +1,6 @@
+notify_zammad
+.idea
+vendor/
+coverage.html
+coverage.out
+dist/

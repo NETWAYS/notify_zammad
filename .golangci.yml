@@ -1,0 +1,44 @@
+run:
+  timeout: 5m
+  tests: false
+issues:
+  exclude-rules:
+    - path: 'internal/client/client.go'
+      linters:
+        - dupl
+    # - path: 'cmd/root.go'
+    #   linters:
+    #     - exhaustive
+linters:
+   enable-all: true
+   disable:
+     - cyclop
+     - depguard
+     - exhaustivestruct
+     - exhaustruct
+     - forbidigo
+     - forcetypeassert
+     - gci
+     - gochecknoglobals
+     - gochecknoinits
+     - godox
+     - godot
+     - goerr113
+     - gofumpt
+     - gomnd
+     - lll
+     - musttag
+     - nakedret
+     - nlreturn
+     - nolintlint
+     - nonamedreturns
+     - tagliatelle
+     - varnamelen
+     - wrapcheck
+linters-settings:
+   estif:
+     min-complexity: 4
+   maligned:
+     suggest-new: true
+   funlen:
+     lines: 90
