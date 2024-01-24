@@ -21,7 +21,7 @@ To track tickets the plugin uses two custom field attributes:
 
 The plugin is currently designed to update the last created ticket with matching icinga_host and icinga_service.
 
-**Why not use Zammad's built-in Icinga integration?** The built-in integration uses mails reveived by Zammad to open/close tickets. We had the requirement to solve the same feature without the use of mail.
+**Why not use Zammad's built-in Icinga integration?** The built-in integration uses mails received by Zammad to open/close tickets. We had the requirement to solve the same feature without the use of mail.
 
 ## Usage
 
