@@ -66,6 +66,10 @@ func (c *Client) SearchTickets(ctx context.Context, hostname, service string) ([
 
 	defer resp.Body.Close()
 
+	if resp.StatusCode == http.StatusUnauthorized {
+		return nil, fmt.Errorf("authentication failed for %s", c.URL.String())
+	}
+
 	var result zammad.TicketSearchResult
 
 	err = json.NewDecoder(resp.Body).Decode(&result)

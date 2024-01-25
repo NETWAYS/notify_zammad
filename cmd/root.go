@@ -110,7 +110,7 @@ func sendNotification(_ *cobra.Command, _ []string) {
 	notificationType, err := icingadsl.ParseNotificationType(cliConfig.IcingaNotificationType)
 
 	if err != nil {
-		check.ExitError(err)
+		check.ExitError(fmt.Errorf("unsupported notification type. Currently supported: Problem/Recovery/Acknowledgement"))
 	}
 
 	// Creating an client and connecting to the API
@@ -165,7 +165,7 @@ func sendNotification(_ *cobra.Command, _ []string) {
 	case icingadsl.FlappingEnd:
 		// Currently no implemented
 	default:
-		check.ExitError(fmt.Errorf("unsupported notification type"))
+		check.ExitError(fmt.Errorf("unsupported notification type. Currently supported: Problem/Recovery/Acknowledgement"))
 	}
 
 	if notificationErr != nil {
@@ -227,7 +227,7 @@ func handleAcknowledgeNotification(ctx context.Context, c *client.Client, ticket
 	// If no Zammad Ticket exists, we cannot add an article and thus return an error
 	// and notify the user
 	if ticket.ID == 0 {
-		return fmt.Errorf("no open or new ticket found to add acknowledgement")
+		return fmt.Errorf("no open or new ticket found to add acknowledgement article to")
 	}
 
 	a := zammad.Article{
@@ -257,7 +257,7 @@ func handleAcknowledgeNotification(ctx context.Context, c *client.Client, ticket
 // If ticket is closed, reopens the ticket with an article
 func handleRecoveryNotification(ctx context.Context, c *client.Client, ticket zammad.Ticket) error {
 	if ticket.ID == 0 {
-		return fmt.Errorf("no open or new ticket found to add recovery")
+		return fmt.Errorf("no open or new ticket found to add recovery article to")
 	}
 
 	a := zammad.Article{
