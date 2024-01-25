@@ -140,19 +140,19 @@ func sendNotification(_ *cobra.Command, _ []string) {
 
 	switch notificationType {
 	case icingadsl.Custom:
-		// If ticket exists, adds message to existing ticket
+		// If ticket exists, adds article to existing ticket
 		notificationErr = handleCustomNotification(ctx, c, ticket)
 	case icingadsl.Acknowledgement:
-		// If ticket exists, adds message to existing ticket
+		// If ticket exists, adds article to existing ticket
 		notificationErr = handleAcknowledgeNotification(ctx, c, ticket)
 	case icingadsl.Problem:
 		// Opens a new ticket if none exists
-		// If one exists, adds message to existing ticket
+		// If one exists, adds article to existing ticket
 		notificationErr = handleProblemNotification(ctx, c, ticket)
 	case icingadsl.Recovery:
 		// Closes a ticket if one exists
-		// If ticket is open, adds message to existing ticket
-		// If ticket is closed, reopens the ticket with the message
+		// If ticket is open, adds article to existing ticket
+		// If ticket is closed, reopens the ticket with the article
 		notificationErr = handleRecoveryNotification(ctx, c, ticket)
 	case icingadsl.DowntimeStart:
 		// Currently no implemented
@@ -291,8 +291,8 @@ func handleCustomNotification(ctx context.Context, c *client.Client, ticket zamm
 
 	a := zammad.Article{
 		TicketID:    ticket.ID,
-		Subject:     "Recovery",
-		Body:        fmt.Sprintf("Recovery for: %s %s", cliConfig.IcingaCheckState, cliConfig.IcingaCheckOutput),
+		Subject:     "Custom",
+		Body:        fmt.Sprintf("Custom for: %s %s", cliConfig.IcingaCheckState, cliConfig.IcingaCheckOutput),
 		ContentType: "text/html",
 		Type:        "web",
 		Internal:    true,
