@@ -2,7 +2,7 @@
 
 A notification plugin for (mostly) Icinga which manages problems as Zammad tickets.
 
-This plugin opens/updates/closes Zammad tickets via the Zammad API.
+This plugin opens/updates/closes Zammad tickets via the Zammad API. The user/token for this plugin needs at least the `ticket.agent` permission.
 
 Problem notifications will open a new ticket if none exists. The ticket will be in state `new`. If a ticket exists the plugin will add an article to the this ticket.
 
