@@ -9,6 +9,20 @@ import (
 	"testing"
 )
 
+func TestCreateArticleBody(t *testing.T) {
+	actual := createArticleBody("foo")
+	expected := "<h3>foo</h3>"
+
+	if !strings.Contains(actual, expected) {
+		t.Error("\nActual: ", actual, "\nExpected: ", expected)
+	}
+
+	expected = "<p>Check State: </p>"
+	if !strings.Contains(actual, expected) {
+		t.Error("\nActual: ", actual, "\nExpected: ", expected)
+	}
+}
+
 func TestNotify_ConnectionRefused(t *testing.T) {
 
 	cmd := exec.Command("go", "run", "../main.go", "--zammad-port", "9999", "--notification-type", "Problem", "--host-name", "foo", "--check-state", "foo", "--check-output", "foo", "--zammad-group", "foo", "--zammad-customer", "foo")
