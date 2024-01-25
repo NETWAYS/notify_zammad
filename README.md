@@ -10,6 +10,9 @@ Acknowledgement notifications will add an article to an existing ticket.
 This will also set the ticket state to `open`.
 If no ticket exists nothing will happen.
 
+Downtime/Flapping notifications will add an article to an existing ticket.
+If no ticket exists nothing will happen.
+
 Recovery notifications will close an existing ticket.
 This will set the ticket state to `closed`.
 If no ticket exists nothing will happen.

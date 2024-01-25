@@ -141,7 +141,7 @@ func sendNotification(_ *cobra.Command, _ []string) {
 	switch notificationType {
 	case icingadsl.Custom:
 		// If ticket exists, adds article to existing ticket
-		notificationErr = handleCustomNotification(ctx, c, ticket)
+		notificationErr = handleCustomNotification(ctx, c, ticket, "Custom")
 	case icingadsl.Acknowledgement:
 		// If ticket exists, adds article to existing ticket
 		notificationErr = handleAcknowledgeNotification(ctx, c, ticket)
@@ -155,15 +155,20 @@ func sendNotification(_ *cobra.Command, _ []string) {
 		// If ticket is closed, reopens the ticket with the article
 		notificationErr = handleRecoveryNotification(ctx, c, ticket)
 	case icingadsl.DowntimeStart:
-		// Currently no implemented
+		// If ticket exists, adds article to existing ticket
+		notificationErr = handleCustomNotification(ctx, c, ticket, "DowntimeStart")
 	case icingadsl.DowntimeEnd:
-		// Currently no implemented
+		// If ticket exists, adds article to existing ticket
+		notificationErr = handleCustomNotification(ctx, c, ticket, "DowntimeEnd")
 	case icingadsl.DowntimeRemoved:
-		// Currently no implemented
+		// If ticket exists, adds article to existing ticket
+		notificationErr = handleCustomNotification(ctx, c, ticket, "DowntimeRemoved")
 	case icingadsl.FlappingStart:
-		// Currently no implemented
+		// If ticket exists, adds article to existing ticket
+		notificationErr = handleCustomNotification(ctx, c, ticket, "FlappingStart")
 	case icingadsl.FlappingEnd:
-		// Currently no implemented
+		// If ticket exists, adds article to existing ticket
+		notificationErr = handleCustomNotification(ctx, c, ticket, "FlappingEnd")
 	default:
 		check.ExitError(fmt.Errorf("unsupported notification type. Currently supported: Problem/Recovery/Acknowledgement"))
 	}
@@ -284,15 +289,15 @@ func handleRecoveryNotification(ctx context.Context, c *client.Client, ticket za
 
 // handleCustomNotification adds an article to an existing ticket
 // If no ticket exists nothing happens and the function returns
-func handleCustomNotification(ctx context.Context, c *client.Client, ticket zammad.Ticket) error {
+func handleCustomNotification(ctx context.Context, c *client.Client, ticket zammad.Ticket, notificationType string) error {
 	if ticket.ID == 0 {
 		return nil
 	}
 
 	a := zammad.Article{
 		TicketID:    ticket.ID,
-		Subject:     "Custom",
-		Body:        fmt.Sprintf("Custom for: %s %s", cliConfig.IcingaCheckState, cliConfig.IcingaCheckOutput),
+		Subject:     notificationType,
+		Body:        fmt.Sprintf("%s for: %s %s", notificationType, cliConfig.IcingaCheckState, cliConfig.IcingaCheckOutput),
 		ContentType: "text/html",
 		Type:        "web",
 		Internal:    true,
