@@ -180,6 +180,29 @@ func sendNotification(_ *cobra.Command, _ []string) {
 	check.BaseExit(0)
 }
 
+// createArticleBody is a small util function to create an articles HTML body
+func createArticleBody(header string) string {
+	var b strings.Builder
+
+	b.WriteString(fmt.Sprintf("<h3>%s</h3>", header))
+	b.WriteString(fmt.Sprintf("<p>Check State: %s</p>", cliConfig.IcingaCheckState))
+	b.WriteString(fmt.Sprintf("<p>Check Output: %s</p>", cliConfig.IcingaCheckOutput))
+
+	if cliConfig.IcingaAuthor != "" {
+		b.WriteString(fmt.Sprintf("<p>Notification Author: %s</p>", cliConfig.IcingaAuthor))
+	}
+
+	if cliConfig.IcingaDate != "" {
+		b.WriteString(fmt.Sprintf("<p>Notification Date: %s</p>", cliConfig.IcingaDate))
+	}
+
+	if cliConfig.IcingaComment != "" {
+		b.WriteString(fmt.Sprintf("<p>Notification Comment: %s</p>", cliConfig.IcingaComment))
+	}
+
+	return b.String()
+}
+
 // handleProblemNotification opens a new ticket if none exists,
 // If one exists, adds message to existing ticket.
 func handleProblemNotification(ctx context.Context, c *client.Client, ticket zammad.Ticket) error {
@@ -188,7 +211,7 @@ func handleProblemNotification(ctx context.Context, c *client.Client, ticket zam
 	a := zammad.Article{
 		TicketID:    ticket.ID,
 		Subject:     "Problem",
-		Body:        fmt.Sprintf("%s %s", cliConfig.IcingaCheckState, cliConfig.IcingaCheckOutput),
+		Body:        createArticleBody("Problem"),
 		ContentType: "text/html",
 		Type:        "web",
 		Internal:    true,
@@ -238,7 +261,7 @@ func handleAcknowledgeNotification(ctx context.Context, c *client.Client, ticket
 	a := zammad.Article{
 		TicketID:    ticket.ID,
 		Subject:     "Acknowledgement",
-		Body:        fmt.Sprintf("Acknowledgement for: %s %s", cliConfig.IcingaCheckState, cliConfig.IcingaCheckOutput),
+		Body:        createArticleBody("Acknowledgement"),
 		ContentType: "text/html",
 		Type:        "web",
 		Internal:    true,
@@ -268,7 +291,7 @@ func handleRecoveryNotification(ctx context.Context, c *client.Client, ticket za
 	a := zammad.Article{
 		TicketID:    ticket.ID,
 		Subject:     "Recovery",
-		Body:        fmt.Sprintf("Recovery for: %s %s", cliConfig.IcingaCheckState, cliConfig.IcingaCheckOutput),
+		Body:        createArticleBody("Recovery"),
 		ContentType: "text/html",
 		Type:        "web",
 		Internal:    true,
@@ -297,7 +320,7 @@ func handleCustomNotification(ctx context.Context, c *client.Client, ticket zamm
 	a := zammad.Article{
 		TicketID:    ticket.ID,
 		Subject:     notificationType,
-		Body:        fmt.Sprintf("%s for: %s %s", notificationType, cliConfig.IcingaCheckState, cliConfig.IcingaCheckOutput),
+		Body:        createArticleBody(notificationType),
 		ContentType: "text/html",
 		Type:        "web",
 		Internal:    true,
