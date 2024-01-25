@@ -172,7 +172,7 @@ func sendNotification(_ *cobra.Command, _ []string) {
 		check.ExitError(notificationErr)
 	}
 
-	check.ExitRaw(check.OK, "")
+	check.BaseExit(0)
 }
 
 // handleProblemNotification opens a new ticket if none exists,
