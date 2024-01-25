@@ -140,30 +140,35 @@ func sendNotification(_ *cobra.Command, _ []string) {
 
 	switch notificationType {
 	case icingadsl.Custom:
-		// If ticket exists, adds message to existing ticket
-		notificationErr = handleCustomNotification(ctx, c, ticket)
+		// If ticket exists, adds article to existing ticket
+		notificationErr = handleCustomNotification(ctx, c, ticket, "Custom")
 	case icingadsl.Acknowledgement:
-		// If ticket exists, adds message to existing ticket
+		// If ticket exists, adds article to existing ticket
 		notificationErr = handleAcknowledgeNotification(ctx, c, ticket)
 	case icingadsl.Problem:
 		// Opens a new ticket if none exists
-		// If one exists, adds message to existing ticket
+		// If one exists, adds article to existing ticket
 		notificationErr = handleProblemNotification(ctx, c, ticket)
 	case icingadsl.Recovery:
 		// Closes a ticket if one exists
-		// If ticket is open, adds message to existing ticket
-		// If ticket is closed, reopens the ticket with the message
+		// If ticket is open, adds article to existing ticket
+		// If ticket is closed, reopens the ticket with the article
 		notificationErr = handleRecoveryNotification(ctx, c, ticket)
 	case icingadsl.DowntimeStart:
-		// Currently no implemented
+		// If ticket exists, adds article to existing ticket
+		notificationErr = handleCustomNotification(ctx, c, ticket, "DowntimeStart")
 	case icingadsl.DowntimeEnd:
-		// Currently no implemented
+		// If ticket exists, adds article to existing ticket
+		notificationErr = handleCustomNotification(ctx, c, ticket, "DowntimeEnd")
 	case icingadsl.DowntimeRemoved:
-		// Currently no implemented
+		// If ticket exists, adds article to existing ticket
+		notificationErr = handleCustomNotification(ctx, c, ticket, "DowntimeRemoved")
 	case icingadsl.FlappingStart:
-		// Currently no implemented
+		// If ticket exists, adds article to existing ticket
+		notificationErr = handleCustomNotification(ctx, c, ticket, "FlappingStart")
 	case icingadsl.FlappingEnd:
-		// Currently no implemented
+		// If ticket exists, adds article to existing ticket
+		notificationErr = handleCustomNotification(ctx, c, ticket, "FlappingEnd")
 	default:
 		check.ExitError(fmt.Errorf("unsupported notification type. Currently supported: Problem/Recovery/Acknowledgement"))
 	}
@@ -172,7 +177,7 @@ func sendNotification(_ *cobra.Command, _ []string) {
 		check.ExitError(notificationErr)
 	}
 
-	check.ExitRaw(check.OK, "")
+	check.BaseExit(0)
 }
 
 // handleProblemNotification opens a new ticket if none exists,
@@ -284,15 +289,15 @@ func handleRecoveryNotification(ctx context.Context, c *client.Client, ticket za
 
 // handleCustomNotification adds an article to an existing ticket
 // If no ticket exists nothing happens and the function returns
-func handleCustomNotification(ctx context.Context, c *client.Client, ticket zammad.Ticket) error {
+func handleCustomNotification(ctx context.Context, c *client.Client, ticket zammad.Ticket, notificationType string) error {
 	if ticket.ID == 0 {
 		return nil
 	}
 
 	a := zammad.Article{
 		TicketID:    ticket.ID,
-		Subject:     "Recovery",
-		Body:        fmt.Sprintf("Recovery for: %s %s", cliConfig.IcingaCheckState, cliConfig.IcingaCheckOutput),
+		Subject:     notificationType,
+		Body:        fmt.Sprintf("%s for: %s %s", notificationType, cliConfig.IcingaCheckState, cliConfig.IcingaCheckOutput),
 		ContentType: "text/html",
 		Type:        "web",
 		Internal:    true,
