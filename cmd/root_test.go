@@ -40,6 +40,28 @@ func TestNotifyZammad(t *testing.T) {
 			args:     []string{"run", "../main.go"},
 			expected: "[UNKNOWN] - required flag",
 		},
+		{
+			name: "with-wrong-auth",
+			server: httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				token := r.Header.Get("Authorization")
+				if token == "secret" {
+					w.WriteHeader(http.StatusOK)
+					w.Write([]byte(`{}`))
+					return
+				}
+				w.WriteHeader(http.StatusUnauthorized)
+			})),
+			args:     []string{"run", "../main.go", "--token", "foo", "--notification-type", "Problem", "--host-name", "Host01", "--service-name", "hostalive", "--check-state", "Down", "--check-output", "CRITICAL - host unreachable", "--zammad-group", "Users", "--zammad-customer", "jon.snow@zammad"},
+			expected: "[UNKNOWN] - authentication failed for http://localhost",
+		},
+		{
+			name: "with-wrong-type",
+			server: httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.Write([]byte(`{}`))
+			})),
+			args:     []string{"run", "../main.go", "--token", "foo", "--notification-type", "NoSuchType", "--host-name", "Host01", "--service-name", "hostalive", "--check-state", "Down", "--check-output", "CRITICAL - host unreachable", "--zammad-group", "Users", "--zammad-customer", "jon.snow@zammad"},
+			expected: "[UNKNOWN] - unsupported notification type",
+		},
 	}
 
 	for _, test := range tests {
