@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -19,7 +20,7 @@ var Timeout = 30
 
 var rootCmd = &cobra.Command{
 	Use: "notify_zammad",
-	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+	PersistentPreRun: func(_ *cobra.Command, _ []string) {
 		go check.HandleTimeout(Timeout)
 	},
 	Short: "An Icinga notification plugin for Zammad",
@@ -110,7 +111,7 @@ func sendNotification(_ *cobra.Command, _ []string) {
 	notificationType, err := icingadsl.ParseNotificationType(cliConfig.IcingaNotificationType)
 
 	if err != nil {
-		check.ExitError(fmt.Errorf("unsupported notification type. Currently supported: Problem/Recovery/Acknowledgement"))
+		check.ExitError(errors.New("unsupported notification type. Currently supported: Problem/Recovery/Acknowledgement"))
 	}
 
 	// Creating an client and connecting to the API
@@ -170,7 +171,7 @@ func sendNotification(_ *cobra.Command, _ []string) {
 		// If ticket exists, adds article to existing ticket
 		notificationErr = handleCustomNotification(ctx, c, ticket, "FlappingEnd")
 	default:
-		check.ExitError(fmt.Errorf("unsupported notification type. Currently supported: Problem/Recovery/Acknowledgement"))
+		check.ExitError(errors.New("unsupported notification type. Currently supported: Problem/Recovery/Acknowledgement"))
 	}
 
 	if notificationErr != nil {
@@ -229,10 +230,13 @@ func handleProblemNotification(ctx context.Context, c *client.Client, ticket zam
 
 	title.WriteString("[Problem] ")
 
+	//nolint:perfsprint
 	title.WriteString(fmt.Sprintf("State: %s for", cliConfig.IcingaCheckState))
+	//nolint:perfsprint
 	title.WriteString(fmt.Sprintf(" Host: %s", cliConfig.IcingaHostname))
 
 	if cliConfig.IcingaServiceName != "" {
+		//nolint:perfsprint
 		title.WriteString(fmt.Sprintf(" Service: %s", cliConfig.IcingaServiceName))
 	}
 
@@ -255,7 +259,7 @@ func handleAcknowledgeNotification(ctx context.Context, c *client.Client, ticket
 	// If no Zammad Ticket exists, we cannot add an article and thus return an error
 	// and notify the user
 	if ticket.ID == 0 {
-		return fmt.Errorf("no open or new ticket found to add acknowledgement article to")
+		return errors.New("no open or new ticket found to add acknowledgement article to")
 	}
 
 	a := zammad.Article{
@@ -285,7 +289,7 @@ func handleAcknowledgeNotification(ctx context.Context, c *client.Client, ticket
 // If ticket is closed, reopens the ticket with an article
 func handleRecoveryNotification(ctx context.Context, c *client.Client, ticket zammad.Ticket) error {
 	if ticket.ID == 0 {
-		return fmt.Errorf("no open or new ticket found to add recovery article to")
+		return errors.New("no open or new ticket found to add recovery article to")
 	}
 
 	a := zammad.Article{
