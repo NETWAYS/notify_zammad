@@ -26,6 +26,7 @@ linters:
      - goerr113
      - gofumpt
      - gomnd
+     - mnd
      - lll
      - musttag
      - nakedret
