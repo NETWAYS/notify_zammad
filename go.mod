@@ -1,6 +1,6 @@
 module github.com/NETWAYS/notify_zammad
 
-go 1.21
+go 1.23
 
 require (
 	github.com/NETWAYS/go-check v0.6.1
