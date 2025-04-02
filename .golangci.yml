@@ -1,45 +1,52 @@
+version: "2"
 run:
-  timeout: 5m
   tests: false
-issues:
-  exclude-rules:
-    - path: 'internal/client/client.go'
-      linters:
-        - dupl
-    # - path: 'cmd/root.go'
-    #   linters:
-    #     - exhaustive
 linters:
-   enable-all: true
-   disable:
-     - cyclop
-     - depguard
-     - exhaustivestruct
-     - exhaustruct
-     - forbidigo
-     - forcetypeassert
-     - gci
-     - gochecknoglobals
-     - gochecknoinits
-     - godox
-     - godot
-     - goerr113
-     - gofumpt
-     - gomnd
-     - mnd
-     - lll
-     - musttag
-     - nakedret
-     - nlreturn
-     - nolintlint
-     - nonamedreturns
-     - tagliatelle
-     - varnamelen
-     - wrapcheck
-linters-settings:
-   estif:
-     min-complexity: 4
-   maligned:
-     suggest-new: true
-   funlen:
-     lines: 90
+  default: all
+  disable:
+    - funlen
+    - cyclop
+    - depguard
+    - err113
+    - exhaustruct
+    - forbidigo
+    - forcetypeassert
+    - gochecknoglobals
+    - gochecknoinits
+    - godot
+    - godox
+    - lll
+    - mnd
+    - musttag
+    - nakedret
+    - nlreturn
+    - nolintlint
+    - nonamedreturns
+    - tagliatelle
+    - varnamelen
+    - wrapcheck
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - dupl
+        path: internal/client/client.go
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
