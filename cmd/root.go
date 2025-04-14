@@ -230,14 +230,11 @@ func handleProblemNotification(ctx context.Context, c *client.Client, ticket zam
 
 	title.WriteString("[Problem] ")
 
-	//nolint:perfsprint
-	title.WriteString(fmt.Sprintf("State: %s for", cliConfig.IcingaCheckState))
-	//nolint:perfsprint
-	title.WriteString(fmt.Sprintf(" Host: %s", cliConfig.IcingaHostname))
+	title.WriteString("State: " + cliConfig.IcingaCheckState + " for")
+	title.WriteString(" Host: " + cliConfig.IcingaHostname)
 
 	if cliConfig.IcingaServiceName != "" {
-		//nolint:perfsprint
-		title.WriteString(fmt.Sprintf(" Service: %s", cliConfig.IcingaServiceName))
+		title.WriteString(" Service: " + cliConfig.IcingaServiceName)
 	}
 
 	ticket.Title = title.String()
