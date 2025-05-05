@@ -53,8 +53,6 @@ func (c *Client) SearchTickets(ctx context.Context, hostname, service string) ([
 	search.Set("order_by", "desc")
 	u.RawQuery = search.Encode()
 
-	// fmt.Printf("Raw Search query: %s\n", u.RawQuery)
-
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
 
 	if err != nil {
@@ -81,7 +79,6 @@ func (c *Client) SearchTickets(ctx context.Context, hostname, service string) ([
 	if err != nil {
 		return nil, fmt.Errorf("unable to read search results: %w", err)
 	}
-	// fmt.Println("received answer: " + buf.String() + "\n")
 
 	if buf.String() == "[]" {
 		tickets := make([]zammad.Ticket, 0)
