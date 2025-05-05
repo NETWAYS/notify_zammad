@@ -131,12 +131,16 @@ func sendNotification(_ *cobra.Command, _ []string) {
 
 	var notificationErr error
 
+	foundTicket := false
+
 	if len(tickets) > 0 {
 		// Using the first ticket found for the notification,
 		// the SearchTickets methods returns the tickets by created_at.
 		// If no ticket is found the zammad.Ticket type will be empty,
 		// which can be used to detect if a new ticket needs to be created.
 		ticket = tickets[0]
+
+		foundTicket = true
 	}
 
 	switch notificationType {
@@ -149,7 +153,7 @@ func sendNotification(_ *cobra.Command, _ []string) {
 	case icingadsl.Problem:
 		// Opens a new ticket if none exists
 		// If one exists, adds article to existing ticket
-		notificationErr = handleProblemNotification(ctx, c, ticket)
+		notificationErr = handleProblemNotification(ctx, c, ticket.ID, foundTicket)
 	case icingadsl.Recovery:
 		// Closes a ticket if one exists
 		// If ticket is open, adds article to existing ticket
@@ -206,11 +210,10 @@ func createArticleBody(header string) string {
 
 // handleProblemNotification opens a new ticket if none exists,
 // If one exists, adds message to existing ticket.
-func handleProblemNotification(ctx context.Context, c *client.Client, ticket zammad.Ticket) error {
+func handleProblemNotification(ctx context.Context, c *client.Client, ticketID int, ticketExists bool) error {
 	var err error
 
 	a := zammad.Article{
-		TicketID:    ticket.ID,
 		Subject:     "Problem",
 		Body:        createArticleBody("Problem"),
 		ContentType: "text/html",
@@ -220,8 +223,10 @@ func handleProblemNotification(ctx context.Context, c *client.Client, ticket zam
 	}
 
 	// If a Zammad Ticket exists, add the article to this ticket.
-	if ticket.ID != 0 {
+	if ticketExists {
+		a.TicketID = ticketID
 		err = c.AddArticleToTicket(ctx, a)
+
 		return err
 	}
 
@@ -236,6 +241,8 @@ func handleProblemNotification(ctx context.Context, c *client.Client, ticket zam
 	if cliConfig.IcingaServiceName != "" {
 		title.WriteString(" Service: " + cliConfig.IcingaServiceName)
 	}
+
+	ticket := zammad.NewTicket{}
 
 	ticket.Title = title.String()
 	ticket.Group = cliConfig.ZammadGroup
