@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 
 	zammad "github.com/NETWAYS/notify_zammad/internal/api"
 )
@@ -70,18 +71,31 @@ func (c *Client) SearchTickets(ctx context.Context, hostname, service string) ([
 		return nil, fmt.Errorf("authentication failed for %s", c.URL.String())
 	}
 
-	var result zammad.TicketSearchResult
+	var result []zammad.Ticket
 
-	err = json.NewDecoder(resp.Body).Decode(&result)
+	buf := new(strings.Builder)
+	_, err = io.Copy(buf, resp.Body)
+	// check errors
+	if err != nil {
+		return nil, fmt.Errorf("unable to read search results: %w", err)
+	}
+
+	if buf.String() == "[]" {
+		tickets := make([]zammad.Ticket, 0)
+		return tickets, nil
+	}
+
+	err = json.NewDecoder(strings.NewReader(buf.String())).Decode(&result)
 
 	if err != nil {
+		// Maybe an empty result
 		return nil, fmt.Errorf("unable to parse search results: %w", err)
 	}
 
 	// We only care about the tickets, thus we create a slice to easier work with them
-	tickets := make([]zammad.Ticket, 0, len(result.Assets.Tickets))
+	tickets := make([]zammad.Ticket, 0, len(result))
 
-	for _, ticket := range result.Assets.Tickets {
+	for _, ticket := range result {
 		// If no service is provided we add the ticket and are done
 		if service == "" {
 			tickets = append(tickets, ticket)
@@ -133,7 +147,7 @@ func (c *Client) AddArticleToTicket(ctx context.Context, article zammad.Article)
 }
 
 // CreateTicket create a new ticket in Zammad
-func (c *Client) CreateTicket(ctx context.Context, ticket zammad.Ticket) error {
+func (c *Client) CreateTicket(ctx context.Context, ticket zammad.NewTicket) error {
 	url := c.URL.JoinPath("/api/v1/tickets")
 
 	data, err := json.Marshal(ticket)

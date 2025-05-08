@@ -1,5 +1,8 @@
 # notify-zammad
 
+> [!IMPORTANT]
+> Due to [breaking API changes](https://github.com/zammad/zammad/blob/develop/BREAKING_CHANGES.md#changes-to-search-api-endpoints) this program only works with Zammad > 6.5 
+
 A notification plugin for (mostly) Icinga which manages problems as Zammad tickets.
 
 This plugin opens/updates/closes Zammad tickets via the Zammad API. The user/token for this plugin needs at least the `ticket.agent` permission.

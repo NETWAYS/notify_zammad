@@ -83,7 +83,7 @@ func TestCreateTicket(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	ticket := zammad.Ticket{
+	ticket := zammad.NewTicket{
 		Title: "MyNewTicket",
 	}
 
@@ -101,7 +101,56 @@ func TestSearchTickets(t *testing.T) {
 			t.Errorf("Expected GET request, got %s", r.Method)
 		}
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{ "tickets": [ 4 ], "tickets_count": 1, "assets": { "Ticket": {  "4": {  "id": 4,  "group_id": 1,  "priority_id": 2,  "state_id": 2,  "organization_id": null,  "number": "67003", "icinga_host": "MyHost", "icinga_service": "", "title": "Foobar",  "owner_id": 1,  "customer_id": 4,  "note": null,  "first_response_at": null,  "first_response_escalation_at": null,  "first_response_in_min": null,  "first_response_diff_in_min": null,  "close_at": null,  "close_escalation_at": null,  "close_in_min": null,  "close_diff_in_min": null,  "update_escalation_at": null,  "update_in_min": null,  "update_diff_in_min": null,  "last_close_at": null,  "last_contact_at": "2024-01-22T10:25:29.671Z",  "last_contact_agent_at": null,  "last_contact_customer_at": "2024-01-22T10:25:29.671Z",  "last_owner_update_at": null,  "create_article_type_id": 5,  "create_article_sender_id": 2,  "article_count": 2,  "escalation_at": null,  "pending_time": null,  "type": null,  "time_unit": null,  "preferences": {},  "updated_by_id": 3,  "created_by_id": 3,  "created_at": "2024-01-22T10:25:29.632Z",  "updated_at": "2024-01-22T10:26:43.716Z",  "article_ids": [   4,   3  ],  "ticket_time_accounting_ids": []  } } }}`))
+		w.Write([]byte(`[
+  {
+    "id": 13,
+    "group_id": 1,
+    "priority_id": 2,
+    "state_id": 1,
+    "organization_id": null,
+    "number": "65012",
+    "title": "[Problem] State: Down for Host: MyHost",
+    "owner_id": 1,
+    "customer_id": 3,
+    "note": null,
+    "first_response_at": null,
+    "first_response_escalation_at": null,
+    "first_response_in_min": null,
+    "first_response_diff_in_min": null,
+    "close_at": null,
+    "close_escalation_at": null,
+    "close_in_min": null,
+    "close_diff_in_min": null,
+    "update_escalation_at": null,
+    "update_in_min": null,
+    "update_diff_in_min": null,
+    "last_close_at": null,
+    "last_contact_at": null,
+    "last_contact_agent_at": null,
+    "last_contact_customer_at": null,
+    "last_owner_update_at": null,
+    "create_article_type_id": 11,
+    "create_article_sender_id": 1,
+    "article_count": 1,
+    "escalation_at": null,
+    "pending_time": null,
+    "type": null,
+    "time_unit": null,
+    "preferences": {},
+    "updated_by_id": 3,
+    "created_by_id": 3,
+    "created_at": "2025-05-05T09:38:25.350Z",
+    "updated_at": "2025-05-05T09:38:25.418Z",
+    "checklist_id": null,
+    "icinga_host": "MyHost",
+    "icinga_service": "",
+    "referencing_checklist_ids": [],
+    "article_ids": [
+      21
+    ],
+    "ticket_time_accounting_ids": []
+  }
+]`))
 	}))
 
 	defer ts.Close()
@@ -120,7 +169,7 @@ func TestSearchTickets(t *testing.T) {
 	tickets, err := c.SearchTickets(ctx, "MyHost", "")
 
 	if err != nil {
-		t.Errorf("Did not except error: %v", err)
+		t.Errorf("Did not expect error: %v", err)
 	}
 
 	if len(tickets) < 1 {
@@ -139,7 +188,58 @@ func TestSearchTicketsWithNoService(t *testing.T) {
 			t.Errorf("Expected GET request, got %s", r.Method)
 		}
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{ "tickets": [ 4 ], "tickets_count": 1, "assets": { "Ticket": {  "4": {  "id": 4,  "group_id": 1,  "priority_id": 2,  "state_id": 2,  "organization_id": null,  "number": "67003", "icinga_host": "MyHost", "icinga_service": "NoSuchService", "title": "Foobar",  "owner_id": 1,  "customer_id": 4,  "note": null,  "first_response_at": null,  "first_response_escalation_at": null,  "first_response_in_min": null,  "first_response_diff_in_min": null,  "close_at": null,  "close_escalation_at": null,  "close_in_min": null,  "close_diff_in_min": null,  "update_escalation_at": null,  "update_in_min": null,  "update_diff_in_min": null,  "last_close_at": null,  "last_contact_at": "2024-01-22T10:25:29.671Z",  "last_contact_agent_at": null,  "last_contact_customer_at": "2024-01-22T10:25:29.671Z",  "last_owner_update_at": null,  "create_article_type_id": 5,  "create_article_sender_id": 2,  "article_count": 2,  "escalation_at": null,  "pending_time": null,  "type": null,  "time_unit": null,  "preferences": {},  "updated_by_id": 3,  "created_by_id": 3,  "created_at": "2024-01-22T10:25:29.632Z",  "updated_at": "2024-01-22T10:26:43.716Z",  "article_ids": [   4,   3  ],  "ticket_time_accounting_ids": []  } } }}`))
+		w.Write([]byte(`[
+  {
+    "id": 15,
+    "group_id": 1,
+    "priority_id": 2,
+    "state_id": 1,
+    "organization_id": null,
+    "number": "65014",
+    "title": "[Problem] State: Down for Host: MyHost Service: NoSuchService",
+    "owner_id": 1,
+    "customer_id": 3,
+    "note": null,
+    "first_response_at": null,
+    "first_response_escalation_at": null,
+    "first_response_in_min": null,
+    "first_response_diff_in_min": null,
+    "close_at": null,
+    "close_escalation_at": null,
+    "close_in_min": null,
+    "close_diff_in_min": null,
+    "update_escalation_at": null,
+    "update_in_min": null,
+    "update_diff_in_min": null,
+    "last_close_at": null,
+    "last_contact_at": null,
+    "last_contact_agent_at": null,
+    "last_contact_customer_at": null,
+    "last_owner_update_at": null,
+    "create_article_type_id": 11,
+    "create_article_sender_id": 1,
+    "article_count": 3,
+    "escalation_at": null,
+    "pending_time": null,
+    "type": null,
+    "time_unit": null,
+    "preferences": {},
+    "updated_by_id": 3,
+    "created_by_id": 3,
+    "created_at": "2025-05-05T12:52:36.650Z",
+    "updated_at": "2025-05-05T13:08:29.288Z",
+    "checklist_id": null,
+    "icinga_host": "MyHost",
+    "icinga_service": "NoSuchService",
+    "referencing_checklist_ids": [],
+    "article_ids": [
+      33,
+      34,
+      35
+    ],
+    "ticket_time_accounting_ids": []
+  }
+]`))
 	}))
 
 	defer ts.Close()
@@ -173,7 +273,56 @@ func TestSearchTicketsWithService(t *testing.T) {
 			t.Errorf("Expected GET request, got %s", r.Method)
 		}
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{ "tickets": [ 4 ], "tickets_count": 1, "assets": { "Ticket": {  "4": {  "id": 4,  "group_id": 1,  "priority_id": 2,  "state_id": 2,  "organization_id": null,  "number": "67003", "icinga_host": "MyHost", "icinga_service": "MyService", "title": "Foobar",  "owner_id": 1,  "customer_id": 4,  "note": null,  "first_response_at": null,  "first_response_escalation_at": null,  "first_response_in_min": null,  "first_response_diff_in_min": null,  "close_at": null,  "close_escalation_at": null,  "close_in_min": null,  "close_diff_in_min": null,  "update_escalation_at": null,  "update_in_min": null,  "update_diff_in_min": null,  "last_close_at": null,  "last_contact_at": "2024-01-22T10:25:29.671Z",  "last_contact_agent_at": null,  "last_contact_customer_at": "2024-01-22T10:25:29.671Z",  "last_owner_update_at": null,  "create_article_type_id": 5,  "create_article_sender_id": 2,  "article_count": 2,  "escalation_at": null,  "pending_time": null,  "type": null,  "time_unit": null,  "preferences": {},  "updated_by_id": 3,  "created_by_id": 3,  "created_at": "2024-01-22T10:25:29.632Z",  "updated_at": "2024-01-22T10:26:43.716Z",  "article_ids": [   4,   3  ],  "ticket_time_accounting_ids": []  } } }}`))
+		w.Write([]byte(`[
+  {
+    "id": 16,
+    "group_id": 1,
+    "priority_id": 2,
+    "state_id": 1,
+    "organization_id": null,
+    "number": "65015",
+    "title": "[Problem] State: Down for Host: MyHost Service: MyService",
+    "owner_id": 1,
+    "customer_id": 3,
+    "note": null,
+    "first_response_at": null,
+    "first_response_escalation_at": null,
+    "first_response_in_min": null,
+    "first_response_diff_in_min": null,
+    "close_at": null,
+    "close_escalation_at": null,
+    "close_in_min": null,
+    "close_diff_in_min": null,
+    "update_escalation_at": null,
+    "update_in_min": null,
+    "update_diff_in_min": null,
+    "last_close_at": null,
+    "last_contact_at": null,
+    "last_contact_agent_at": null,
+    "last_contact_customer_at": null,
+    "last_owner_update_at": null,
+    "create_article_type_id": 11,
+    "create_article_sender_id": 1,
+    "article_count": 1,
+    "escalation_at": null,
+    "pending_time": null,
+    "type": null,
+    "time_unit": null,
+    "preferences": {},
+    "updated_by_id": 3,
+    "created_by_id": 3,
+    "created_at": "2025-05-05T13:46:37.651Z",
+    "updated_at": "2025-05-05T13:46:37.733Z",
+    "checklist_id": null,
+    "icinga_host": "MyHost",
+    "icinga_service": "MyService",
+    "referencing_checklist_ids": [],
+    "article_ids": [
+      36
+    ],
+    "ticket_time_accounting_ids": []
+  }
+]`))
 	}))
 
 	defer ts.Close()

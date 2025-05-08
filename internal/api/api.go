@@ -12,18 +12,13 @@ const (
 // We currently only care about the assets in which the tickets
 // are contained
 type TicketSearchResult struct {
-	Assets Assets `json:"assets"`
-}
-
-// Assets represents the assets in the search result
-type Assets struct {
-	Tickets map[string]Ticket `json:"Ticket"`
+	Tickets []Ticket `json:"Ticket"`
 }
 
 // Ticket represents a Zammad Ticket
 // We use two custom field attributes for the tickets
 // icinga_host and icinga_service to track existing tickets
-type Ticket struct {
+type NewTicket struct {
 	ID            int     `json:"id,omitempty"`
 	Title         string  `json:"title"`
 	Group         string  `json:"group"`
@@ -31,6 +26,16 @@ type Ticket struct {
 	IcingaHost    string  `json:"icinga_host"`
 	IcingaService string  `json:"icinga_service"`
 	Article       Article `json:"article,omitempty"`
+}
+
+type Ticket struct {
+	ID            int    `json:"id,omitempty"`
+	Title         string `json:"title"`
+	GroupID       int    `json:"group_id"`
+	CustomerID    int    `json:"customer_id"`
+	IcingaHost    string `json:"icinga_host"`
+	IcingaService string `json:"icinga_service"`
+	ArticleIDs    []int  `json:"article_ids,omitempty"`
 }
 
 // Article represents a Zammad Ticket Article
