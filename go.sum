@@ -1,7 +1,7 @@
 github.com/NETWAYS/go-check v0.6.4 h1:4WETSVNZNEP0Yudcp5xlvxq6RGn920cmUKq4fz/P1GQ=
 github.com/NETWAYS/go-check v0.6.4/go.mod h1:8/GWnq8SirreAixgRmcp82JG16NnEl38rHq9phICy9s=
-github.com/NETWAYS/go-check-network/http v0.0.0-20240101222557-39e140c9fbf1 h1:5R4FCzBCOZSQ66CMNkKStV+OP0r8rzeJeAw+cwpSoow=
-github.com/NETWAYS/go-check-network/http v0.0.0-20240101222557-39e140c9fbf1/go.mod h1:jZ62Y7P8/T/TqNy6I7RI/G9G9tXEcpuqrlkkO+xgCRE=
+github.com/NETWAYS/go-check-network/http v0.0.0-20251202001729-25880c6d17f3 h1:b41QyZJxk7YtHvrjFmCcWJwM2bhcWyMQtMfl2c51Eqo=
+github.com/NETWAYS/go-check-network/http v0.0.0-20251202001729-25880c6d17f3/go.mod h1:JSI6YmvJb7p0u6N2Ob2DcZujqDt0iDimwkIrUeiAU7g=
 github.com/NETWAYS/go-icingadsl v0.1.2 h1:F25Y7HAw9VF8GC4eJFbhXzA4TBUwA/0R/n2vbTz6qsQ=
 github.com/NETWAYS/go-icingadsl v0.1.2/go.mod h1:CE74xcjOUHxYpltsooRTimANss5H2VZHFlme5138Cqw=
 github.com/cpuguy83/go-md2man/v2 v2.0.6/go.mod h1:oOW0eioCTA6cOiMLiUPZOpcVxMig6NIQQ7OS05n1F4g=
