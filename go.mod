@@ -6,7 +6,7 @@ require (
 	github.com/NETWAYS/go-check v0.6.4
 	github.com/NETWAYS/go-check-network/http v0.0.0-20240101222557-39e140c9fbf1
 	github.com/NETWAYS/go-icingadsl v0.1.2
-	github.com/spf13/cobra v1.8.0
+	github.com/spf13/cobra v1.10.2
 )
 
 require (
