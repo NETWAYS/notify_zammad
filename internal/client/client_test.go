@@ -1,7 +1,6 @@
 package client
 
 import (
-	"context"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -40,8 +39,7 @@ func TestUpdateTicketState(t *testing.T) {
 
 	c := NewClient(*u, rt)
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx := t.Context()
 
 	ticket := zammad.Ticket{}
 
@@ -80,8 +78,7 @@ func TestCreateTicket(t *testing.T) {
 
 	c := NewClient(*u, rt)
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx := t.Context()
 
 	ticket := zammad.NewTicket{
 		Title: "MyNewTicket",
@@ -163,8 +160,7 @@ func TestSearchTickets(t *testing.T) {
 
 	c := NewClient(*u, rt)
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx := t.Context()
 
 	tickets, err := c.SearchTickets(ctx, "MyHost", "")
 
@@ -252,8 +248,7 @@ func TestSearchTicketsWithNoService(t *testing.T) {
 
 	c := NewClient(*u, rt)
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx := t.Context()
 
 	tickets, err := c.SearchTickets(ctx, "MyHost", "MyService")
 
@@ -335,8 +330,7 @@ func TestSearchTicketsWithService(t *testing.T) {
 
 	c := NewClient(*u, rt)
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx := t.Context()
 
 	tickets, err := c.SearchTickets(ctx, "MyHost", "MyService")
 
@@ -377,8 +371,7 @@ func TestAddArticleToTicket(t *testing.T) {
 
 	c := NewClient(*u, rt)
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx := t.Context()
 
 	a := zammad.Article{
 		TicketID: 1337,

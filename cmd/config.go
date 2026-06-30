@@ -79,7 +79,6 @@ func (c *Config) NewClient() *client.Client {
 		KeyFile:            c.KeyFile,
 		CertFile:           c.CertFile,
 	})
-
 	if err != nil {
 		fmt.Println("error creating TLS configuration", err)
 		os.Exit(1)
