@@ -1,5 +1,5 @@
-github.com/NETWAYS/go-check v0.6.4 h1:4WETSVNZNEP0Yudcp5xlvxq6RGn920cmUKq4fz/P1GQ=
-github.com/NETWAYS/go-check v0.6.4/go.mod h1:8/GWnq8SirreAixgRmcp82JG16NnEl38rHq9phICy9s=
+github.com/NETWAYS/go-check v1.0.0 h1:YkzTwFfGR+Z+mK3Wsqpnu8wibzsB30im19iPNfCOsMQ=
+github.com/NETWAYS/go-check v1.0.0/go.mod h1:8/GWnq8SirreAixgRmcp82JG16NnEl38rHq9phICy9s=
 github.com/NETWAYS/go-check-network/http v0.0.0-20251202001729-25880c6d17f3 h1:b41QyZJxk7YtHvrjFmCcWJwM2bhcWyMQtMfl2c51Eqo=
 github.com/NETWAYS/go-check-network/http v0.0.0-20251202001729-25880c6d17f3/go.mod h1:JSI6YmvJb7p0u6N2Ob2DcZujqDt0iDimwkIrUeiAU7g=
 github.com/NETWAYS/go-icingadsl v0.1.2 h1:F25Y7HAw9VF8GC4eJFbhXzA4TBUwA/0R/n2vbTz6qsQ=
