@@ -15,7 +15,7 @@ type TicketSearchResult struct {
 	Tickets []Ticket `json:"Ticket"`
 }
 
-// Ticket represents a Zammad Ticket
+// NewTicket represents a Zammad Ticket
 // We use two custom field attributes for the tickets
 // icinga_host and icinga_service to track existing tickets
 type NewTicket struct {
@@ -25,7 +25,7 @@ type NewTicket struct {
 	Customer      string  `json:"customer"`
 	IcingaHost    string  `json:"icinga_host"`
 	IcingaService string  `json:"icinga_service"`
-	Article       Article `json:"article,omitempty"`
+	Article       Article `json:"article"`
 }
 
 type Ticket struct {

@@ -18,6 +18,12 @@ import (
 // Timeout is the default timout for the plugin
 var Timeout = 30
 
+const (
+	contentTypeHTML = "text/html"
+	typeWeb         = "web"
+	senderAgent     = "Agent"
+)
+
 var rootCmd = &cobra.Command{
 	Use: "notify_zammad",
 	PersistentPreRun: func(_ *cobra.Command, _ []string) {
@@ -34,7 +40,8 @@ func Execute(version string) {
 	rootCmd.Version = version
 	rootCmd.VersionTemplate()
 
-	if err := rootCmd.Execute(); err != nil {
+	err := rootCmd.Execute()
+	if err != nil {
 		check.ExitError(err)
 	}
 }
@@ -109,7 +116,6 @@ func init() {
 // sendNotification is the cobra.Command that is executed
 func sendNotification(_ *cobra.Command, _ []string) {
 	notificationType, err := icingadsl.ParseNotificationType(cliConfig.IcingaNotificationType)
-
 	if err != nil {
 		check.ExitError(errors.New("unsupported notification type. Currently supported: Problem/Recovery/Acknowledgement"))
 	}
@@ -122,7 +128,6 @@ func sendNotification(_ *cobra.Command, _ []string) {
 
 	// Search for existing Tickets
 	tickets, err := c.SearchTickets(ctx, cliConfig.IcingaHostname, cliConfig.IcingaServiceName)
-
 	if err != nil {
 		check.ExitError(err)
 	}
@@ -189,20 +194,20 @@ func sendNotification(_ *cobra.Command, _ []string) {
 func createArticleBody(header string) string {
 	var b strings.Builder
 
-	b.WriteString(fmt.Sprintf("<h3>%s</h3>", header))
-	b.WriteString(fmt.Sprintf("<p>Check State: %s</p>", cliConfig.IcingaCheckState))
-	b.WriteString(fmt.Sprintf("<p>Check Output: %s</p>", cliConfig.IcingaCheckOutput))
+	fmt.Fprintf(&b, "<h3>%s</h3>", header)
+	fmt.Fprintf(&b, "<p>Check State: %s</p>", cliConfig.IcingaCheckState)
+	fmt.Fprintf(&b, "<p>Check Output: %s</p>", cliConfig.IcingaCheckOutput)
 
 	if cliConfig.IcingaAuthor != "" {
-		b.WriteString(fmt.Sprintf("<p>Notification Author: %s</p>", cliConfig.IcingaAuthor))
+		fmt.Fprintf(&b, "<p>Notification Author: %s</p>", cliConfig.IcingaAuthor)
 	}
 
 	if cliConfig.IcingaDate != "" {
-		b.WriteString(fmt.Sprintf("<p>Notification Date: %s</p>", cliConfig.IcingaDate))
+		fmt.Fprintf(&b, "<p>Notification Date: %s</p>", cliConfig.IcingaDate)
 	}
 
 	if cliConfig.IcingaComment != "" {
-		b.WriteString(fmt.Sprintf("<p>Notification Comment: %s</p>", cliConfig.IcingaComment))
+		fmt.Fprintf(&b, "<p>Notification Comment: %s</p>", cliConfig.IcingaComment)
 	}
 
 	return b.String()
@@ -216,10 +221,10 @@ func handleProblemNotification(ctx context.Context, c *client.Client, ticketID i
 	a := zammad.Article{
 		Subject:     "Problem",
 		Body:        createArticleBody("Problem"),
-		ContentType: "text/html",
-		Type:        "web",
+		ContentType: contentTypeHTML,
+		Type:        typeWeb,
 		Internal:    true,
-		Sender:      "Agent",
+		Sender:      senderAgent,
 	}
 
 	// If a Zammad Ticket exists, add the article to this ticket.
@@ -270,14 +275,13 @@ func handleAcknowledgeNotification(ctx context.Context, c *client.Client, ticket
 		TicketID:    ticket.ID,
 		Subject:     "Acknowledgement",
 		Body:        createArticleBody("Acknowledgement"),
-		ContentType: "text/html",
-		Type:        "web",
+		ContentType: contentTypeHTML,
+		Type:        typeWeb,
 		Internal:    true,
-		Sender:      "Agent",
+		Sender:      senderAgent,
 	}
 
 	err := c.AddArticleToTicket(ctx, a)
-
 	if err != nil {
 		return err
 	}
@@ -300,14 +304,13 @@ func handleRecoveryNotification(ctx context.Context, c *client.Client, ticket za
 		TicketID:    ticket.ID,
 		Subject:     "Recovery",
 		Body:        createArticleBody("Recovery"),
-		ContentType: "text/html",
-		Type:        "web",
+		ContentType: contentTypeHTML,
+		Type:        typeWeb,
 		Internal:    true,
-		Sender:      "Agent",
+		Sender:      senderAgent,
 	}
 
 	err := c.AddArticleToTicket(ctx, a)
-
 	if err != nil {
 		return err
 	}

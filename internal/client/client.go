@@ -54,13 +54,11 @@ func (c *Client) SearchTickets(ctx context.Context, hostname, service string) ([
 	u.RawQuery = search.Encode()
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
-
 	if err != nil {
 		return nil, fmt.Errorf("could not create request: %w", err)
 	}
 
 	resp, err := c.Client.Do(req)
-
 	if err != nil {
 		return nil, fmt.Errorf("could not search for tickets: %w", err)
 	}
@@ -86,7 +84,6 @@ func (c *Client) SearchTickets(ctx context.Context, hostname, service string) ([
 	}
 
 	err = json.NewDecoder(strings.NewReader(buf.String())).Decode(&result)
-
 	if err != nil {
 		// Maybe an empty result
 		return nil, fmt.Errorf("unable to parse search results: %w", err)
@@ -116,7 +113,6 @@ func (c *Client) AddArticleToTicket(ctx context.Context, article zammad.Article)
 	url := c.URL.JoinPath("/api/v1/ticket_articles")
 
 	data, err := json.Marshal(article)
-
 	if err != nil {
 		return err
 	}
@@ -151,7 +147,6 @@ func (c *Client) CreateTicket(ctx context.Context, ticket zammad.NewTicket) erro
 	url := c.URL.JoinPath("/api/v1/tickets")
 
 	data, err := json.Marshal(ticket)
-
 	if err != nil {
 		return err
 	}
@@ -186,7 +181,7 @@ func (c *Client) UpdateTicketState(ctx context.Context, ticket zammad.Ticket, st
 	url := c.URL.JoinPath("/api/v1/tickets", strconv.Itoa(ticket.ID))
 
 	// Set the state field with the given state to be sent to the API
-	data := []byte(fmt.Sprintf("{\"state\": \"%s\"}", state))
+	data := fmt.Appendf(nil, "{\"state\": \"%s\"}", state)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPut, url.String(), bytes.NewBuffer(data))
 	req.Header.Set("Content-Type", "application/json")
